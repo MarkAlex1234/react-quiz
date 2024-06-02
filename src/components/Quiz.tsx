@@ -19,15 +19,6 @@ export default function Quiz(): ReactElement {
       : userAnswers.length - 1;
   const isQuizComplete = activeQuestionIndex === QUESTIONS.length;
 
-  if (isQuizComplete) {
-    return (
-      <div id="summary">
-        <img src={quizCompletePng} alt="Quiz Complete Image" />
-        <h2>Quiz is Complete</h2>
-      </div>
-    );
-  }
-
   const handleSelectAnswer = useCallback(
     (selectedAnswer: string | null) => {
       setSelectedAnswer(selectedAnswer);
@@ -64,6 +55,15 @@ export default function Quiz(): ReactElement {
   const handleSkipAnswer = useCallback(() => {
     handleSelectAnswer(null);
   }, [handleSelectAnswer]);
+
+  if (isQuizComplete) {
+    return (
+      <div id="summary">
+        <img src={quizCompletePng} alt="Quiz Complete Image" />
+        <h2>Quiz is Complete</h2>
+      </div>
+    );
+  }
 
   return (
     <div id="quiz">
