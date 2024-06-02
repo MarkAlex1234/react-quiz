@@ -1,20 +1,11 @@
-import React, {
-  useCallback,
-  useState,
-  useEffect,
-  SetStateAction,
-  useRef,
-} from 'react';
+import React, { useCallback, useState } from 'react';
 import { ReactElement } from 'react';
 import QUESTIONS from '../questions';
 import quizCompletePng from '../assets/quiz-complete.png';
-import QuestionTimer from './QuestionTimer';
 import { AnswerStateEnum } from '../common/enums';
-
-const TIMEOUT_TIME = 10000;
+import Question from './Question';
 
 export default function Quiz(): ReactElement {
-  const shuffledAnswers = useRef();
   const [answerState, setAnswerState] = useState<AnswerStateEnum>(
     AnswerStateEnum.UNKNOWN
   );
@@ -22,7 +13,10 @@ export default function Quiz(): ReactElement {
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
 
   // By the amount of questions answered we can figure out what active question is next.
-  const activeQuestionIndex = userAnswers.length;
+  const activeQuestionIndex =
+    answerState === AnswerStateEnum.UNKNOWN
+      ? userAnswers.length
+      : userAnswers.length - 1;
   const isQuizComplete = activeQuestionIndex === QUESTIONS.length;
 
   if (isQuizComplete) {
@@ -32,13 +26,6 @@ export default function Quiz(): ReactElement {
         <h2>Quiz is Complete</h2>
       </div>
     );
-  }
-
-  if (!shuffledAnswers.current) {
-    // Shuffle the answers so that they are not in the same place (index 0) on each question
-    // where the correct answer is.
-    shuffledAnswers.current = [...QUESTIONS[activeQuestionIndex].answers];
-    shuffledAnswers.current.sort(() => Math.random() - 0.5);
   }
 
   const handleSelectAnswer = useCallback(
@@ -80,45 +67,15 @@ export default function Quiz(): ReactElement {
 
   return (
     <div id="quiz">
-      <div id="question">
-        <QuestionTimer
-          timeout={TIMEOUT_TIME}
-          onTimeout={handleSkipAnswer}
-          key={activeQuestionIndex}
-        />
-        <h2>{QUESTIONS[activeQuestionIndex].text}</h2>
-        <ul id="answers">
-          {shuffledAnswers.current.map((answer) => {
-            let styleToUse = '';
-
-            if (
-              answerState === AnswerStateEnum.ANSWERED &&
-              selectedAnswer === answer
-            ) {
-              styleToUse = 'selected';
-            }
-
-            if (
-              (answerState === AnswerStateEnum.CORRECT ||
-                answerState === AnswerStateEnum.WRONG) &&
-              selectedAnswer === answer
-            ) {
-              styleToUse = answerState;
-            }
-
-            return (
-              <li key={answer} className="answer">
-                <button
-                  onClick={() => handleSelectAnswer(answer)}
-                  className={styleToUse}
-                >
-                  {answer}
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-      </div>
+      <Question
+        questionText={QUESTIONS[activeQuestionIndex].text}
+        onSelect={handleSelectAnswer}
+        onSkip={handleSkipAnswer}
+        answerState={answerState}
+        selectedAnswer={selectedAnswer}
+        answers={QUESTIONS[activeQuestionIndex].answers}
+        key={activeQuestionIndex}
+      />
     </div>
   );
 }
