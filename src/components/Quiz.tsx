@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { ReactElement } from 'react';
 import QUESTIONS from '../questions';
 import quizCompletePng from '../assets/quiz-complete.png';
+import QuestionTimer from './QuestionTimer';
+
+const TIMEOUT_TIME = 10000;
 
 export default function Quiz(): ReactElement {
   const [userAnswers, setUserAnswers] = useState<string[]>([]);
@@ -24,15 +27,28 @@ export default function Quiz(): ReactElement {
   const shuffledAnswers = [...QUESTIONS[activeQuestionIndex].answers];
   shuffledAnswers.sort(() => Math.random() - 0.5);
 
-  function handleSelectAnswer(selectedAnswer) {
+  // useCallback handles a memoized version of the callback that only changes if one of the inputs has changed.
+  const handleSelectAnswer = useCallback(function handleSelectAnswer(
+    selectedAnswer
+  ) {
     setUserAnswers((prevValue) => {
       return [...prevValue, selectedAnswer];
     });
-  }
+  },
+  []);
+
+  const handleSkipAnswer = useCallback(() => {
+    handleSelectAnswer(null);
+  }, [handleSelectAnswer]);
 
   return (
     <div id="quiz">
       <div id="question">
+        <QuestionTimer
+          timeout={TIMEOUT_TIME}
+          onTimeout={handleSkipAnswer}
+          key={activeQuestionIndex}
+        />
         <h2>{QUESTIONS[activeQuestionIndex].text}</h2>
         <ul id="answers">
           {shuffledAnswers.map((answer) => (
