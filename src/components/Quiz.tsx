@@ -1,15 +1,27 @@
-import React, { useCallback, useState } from 'react';
+import React, {
+  useCallback,
+  useState,
+  useEffect,
+  SetStateAction,
+  useRef,
+} from 'react';
 import { ReactElement } from 'react';
 import QUESTIONS from '../questions';
 import quizCompletePng from '../assets/quiz-complete.png';
 import QuestionTimer from './QuestionTimer';
+import { AnswerStateEnum } from '../common/enums';
 
 const TIMEOUT_TIME = 10000;
 
 export default function Quiz(): ReactElement {
-  const [userAnswers, setUserAnswers] = useState<string[]>([]);
+  const shuffledAnswers = useRef();
+  const [answerState, setAnswerState] = useState<AnswerStateEnum>(
+    AnswerStateEnum.UNKNOWN
+  );
+  const [userAnswers, setUserAnswers] = useState<any[]>([]);
+  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
 
-  // By the amount of questions answers we can figure out what active question is next.
+  // By the amount of questions answered we can figure out what active question is next.
   const activeQuestionIndex = userAnswers.length;
   const isQuizComplete = activeQuestionIndex === QUESTIONS.length;
 
@@ -22,20 +34,45 @@ export default function Quiz(): ReactElement {
     );
   }
 
-  // We need to shuffle the answers so that they are not in the same place (index 0) on each question
-  // which is the correct answer.
-  const shuffledAnswers = [...QUESTIONS[activeQuestionIndex].answers];
-  shuffledAnswers.sort(() => Math.random() - 0.5);
+  if (!shuffledAnswers.current) {
+    // Shuffle the answers so that they are not in the same place (index 0) on each question
+    // where the correct answer is.
+    shuffledAnswers.current = [...QUESTIONS[activeQuestionIndex].answers];
+    shuffledAnswers.current.sort(() => Math.random() - 0.5);
+  }
 
-  // useCallback handles a memoized version of the callback that only changes if one of the inputs has changed.
-  const handleSelectAnswer = useCallback(function handleSelectAnswer(
-    selectedAnswer
-  ) {
-    setUserAnswers((prevValue) => {
-      return [...prevValue, selectedAnswer];
-    });
-  },
-  []);
+  const handleSelectAnswer = useCallback(
+    (selectedAnswer: string | null) => {
+      setSelectedAnswer(selectedAnswer);
+      setAnswerState(AnswerStateEnum.ANSWERED);
+
+      setUserAnswers((prevValue) => [...prevValue, selectedAnswer]);
+
+      // Determine if the answer was correct or wrong after 1 second of selection
+      const timer = setTimeout(() => {
+        if (selectedAnswer === QUESTIONS[activeQuestionIndex].answers[0]) {
+          setAnswerState(AnswerStateEnum.CORRECT);
+        } else {
+          setAnswerState(AnswerStateEnum.WRONG);
+        }
+
+        // After 2 seconds set the answer state back to unknown
+        const secondTimer = setTimeout(() => {
+          setAnswerState(AnswerStateEnum.UNKNOWN);
+          setSelectedAnswer(null);
+        }, 2000);
+
+        return () => {
+          clearTimeout(secondTimer);
+        };
+      }, 1000);
+
+      return () => {
+        clearTimeout(timer);
+      };
+    },
+    [activeQuestionIndex]
+  );
 
   const handleSkipAnswer = useCallback(() => {
     handleSelectAnswer(null);
@@ -51,13 +88,35 @@ export default function Quiz(): ReactElement {
         />
         <h2>{QUESTIONS[activeQuestionIndex].text}</h2>
         <ul id="answers">
-          {shuffledAnswers.map((answer) => (
-            <li key={answer} className="answer">
-              <button onClick={() => handleSelectAnswer(answer)}>
-                {answer}
-              </button>
-            </li>
-          ))}
+          {shuffledAnswers.current.map((answer) => {
+            let styleToUse = '';
+
+            if (
+              answerState === AnswerStateEnum.ANSWERED &&
+              selectedAnswer === answer
+            ) {
+              styleToUse = 'selected';
+            }
+
+            if (
+              (answerState === AnswerStateEnum.CORRECT ||
+                answerState === AnswerStateEnum.WRONG) &&
+              selectedAnswer === answer
+            ) {
+              styleToUse = answerState;
+            }
+
+            return (
+              <li key={answer} className="answer">
+                <button
+                  onClick={() => handleSelectAnswer(answer)}
+                  className={styleToUse}
+                >
+                  {answer}
+                </button>
+              </li>
+            );
+          })}
         </ul>
       </div>
     </div>
