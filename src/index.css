@@ -327,6 +327,14 @@ header h1 {
   color: #594276;
 }
 
+#summary-stats .number.correct {
+  color: #054e37;
+}
+
+#summary-stats .number.wrong {
+  color: #730b4b;
+}
+
 #summary-stats .text {
   font-family: 'Roboto Condensed', sans-serif;
   text-transform: uppercase;

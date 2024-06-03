@@ -13,10 +13,18 @@ export default function Summary({
   const correctAnswers = usersAnswers.filter(
     (answer, index) => answer === QUESTIONS[index].answers[0]
   );
-  const wrongAnswers = usersAnswers.filter(
-    (answer, index) => answer !== null && answer !== QUESTIONS[index].answers[0]
-  );
 
+  // TODO we could move this as a util function?
+  const skippedAnswersPercentage = Math.round(
+    (skippedAnswers.length / usersAnswers.length) * 100
+  );
+  const correctAnswersPercentage = Math.round(
+    (correctAnswers.length / usersAnswers.length) * 100
+  );
+  const wrongAnswersPercentage =
+    100 - skippedAnswersPercentage - correctAnswersPercentage;
+
+  // Reloads the page to mock a "Play Again" feature
   function handlePlayAgain() {
     window.location.reload();
   }
@@ -27,15 +35,15 @@ export default function Summary({
       <h2>Quiz is Complete</h2>
       <div id="summary-stats">
         <p>
-          <span className="number">{skippedAnswers?.length ?? 0}</span>
+          <span className="number">{skippedAnswersPercentage}%</span>
           <span className="text">Skipped</span>
         </p>
         <p>
-          <span className="number">{correctAnswers?.length ?? 0}</span>
+          <span className="number correct">{correctAnswersPercentage}%</span>
           <span className="text">Correct</span>
         </p>
         <p>
-          <span className="number">{wrongAnswers?.length ?? 0}</span>
+          <span className="number wrong">{wrongAnswersPercentage}%</span>
           <span className="text">Incorrect</span>
         </p>
       </div>
