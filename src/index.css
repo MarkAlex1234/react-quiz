@@ -150,7 +150,8 @@ header h1 {
   margin: 0 auto;
 }
 
-.answer button {
+.answer button,
+#summary button {
   display: inline-block;
   width: 100%;
   font-family: 'Roboto Condensed', sans-serif;
@@ -165,7 +166,9 @@ header h1 {
 }
 
 .answer button:hover,
-.answer button:focus {
+.answer button:hover,
+#summary button:hover,
+#summary button:focus {
   /* background: linear-gradient(180deg, #bf48f6 0%, #9b50f2 100%); */
   background: #9d5af5;
   color: white;

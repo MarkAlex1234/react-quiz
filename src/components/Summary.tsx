@@ -9,16 +9,17 @@ interface Props {
 export default function Summary({
   usersAnswers,
 }: Readonly<Props>): ReactElement {
-  let numSkippedQuestions: number = 0;
-  let numCorrectQuestions: number = 0;
-  let numWrongQuestions: number = 0;
+  const skippedAnswers = usersAnswers.filter((answer) => answer === null);
+  const correctAnswers = usersAnswers.filter(
+    (answer, index) => answer === QUESTIONS[index].answers[0]
+  );
+  const wrongAnswers = usersAnswers.filter(
+    (answer, index) => answer !== null && answer !== QUESTIONS[index].answers[0]
+  );
 
-  usersAnswers.map((answer, index) => {
-    if (QUESTIONS[index].answers[0] === answer) numCorrectQuestions++;
-    else if (QUESTIONS[index].answers[0] !== answer && answer !== null)
-      numWrongQuestions++;
-    else if (answer === null) numSkippedQuestions++;
-  });
+  function handlePlayAgain() {
+    window.location.reload();
+  }
 
   return (
     <div id="summary">
@@ -26,15 +27,15 @@ export default function Summary({
       <h2>Quiz is Complete</h2>
       <div id="summary-stats">
         <p>
-          <span className="number">{numSkippedQuestions}</span>
+          <span className="number">{skippedAnswers?.length ?? 0}</span>
           <span className="text">Skipped</span>
         </p>
         <p>
-          <span className="number">{numCorrectQuestions}</span>
+          <span className="number">{correctAnswers?.length ?? 0}</span>
           <span className="text">Correct</span>
         </p>
         <p>
-          <span className="number">{numWrongQuestions}</span>
+          <span className="number">{wrongAnswers?.length ?? 0}</span>
           <span className="text">Incorrect</span>
         </p>
       </div>
@@ -56,10 +57,17 @@ export default function Summary({
                 <p className={styleToUse}>
                   {answer ?? 'Woops! This one was skipped!'}
                 </p>
+                {styleToUse !== 'user-answer correct' && (
+                  <>
+                    <span>The correct answer was:</span>
+                    <p className="user-answer">{QUESTIONS[index].answers[0]}</p>
+                  </>
+                )}
               </li>
             );
           })}
       </ol>
+      <button onClick={handlePlayAgain}>Play Again</button>
     </div>
   );
 }
