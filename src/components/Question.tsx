@@ -23,6 +23,16 @@ export default function Question({
     isCorrect: undefined,
   });
 
+  let questionTimer = TIMEOUT_TIME;
+
+  if (answer.selectedAnswer !== '') {
+    questionTimer = 1000;
+  }
+
+  if (answer.isCorrect !== undefined) {
+    questionTimer = 2000;
+  }
+
   function handleSelectAnswer(answer) {
     setAnswer({
       selectedAnswer: answer,
@@ -35,9 +45,14 @@ export default function Question({
         isCorrect: QUESTIONS[questionIndex].answers[0] === answer,
       });
 
-      const secondtTimer = setTimeout(() => {
+      const secondTimer = setTimeout(() => {
         onSelect(answer);
         answerState = AnswerStateEnum.UNKNOWN;
+
+        setAnswer({
+          selectedAnswer: answer,
+          isCorrect: undefined,
+        });
       }, 2000);
     }, 1000);
   }
@@ -54,7 +69,14 @@ export default function Question({
 
   return (
     <div id="question">
-      <QuestionTimer timeout={TIMEOUT_TIME} onTimeout={onSkip} />
+      <QuestionTimer
+        key={questionTimer}
+        timeout={questionTimer}
+        onTimeout={
+          answer.selectedAnswer === AnswerStateEnum.UNKNOWN ? onSkip : undefined
+        }
+        mode={answerState}
+      />
       <h2>{QUESTIONS[questionIndex].text}</h2>
       <Answers
         selectedAnswer={answer.selectedAnswer}

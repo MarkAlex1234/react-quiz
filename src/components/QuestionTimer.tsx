@@ -3,21 +3,25 @@ import { ReactElement } from 'react';
 
 interface Props {
   timeout: number;
-  onTimeout: () => void;
+  mode: string;
+  onTimeout?: () => void;
 }
 
 export default function QuestionTimer({
   timeout,
   onTimeout,
+  mode,
 }: Readonly<Props>): ReactElement {
   const [remainingTime, setRemainingTime] = useState(timeout);
 
   useEffect(() => {
-    const timer = setTimeout(onTimeout, timeout);
+    if (onTimeout) {
+      const timer = setTimeout(onTimeout, timeout);
 
-    return () => {
-      clearTimeout(timer);
-    };
+      return () => {
+        clearTimeout(timer);
+      };
+    }
   }, [timeout, onTimeout]);
 
   useEffect(() => {
@@ -30,5 +34,12 @@ export default function QuestionTimer({
     };
   }, []);
 
-  return <progress id="question-time" value={remainingTime} max={timeout} />;
+  return (
+    <progress
+      id="question-time"
+      value={remainingTime}
+      max={timeout}
+      className={mode}
+    />
+  );
 }
