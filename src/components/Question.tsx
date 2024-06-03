@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import { ReactElement } from 'react';
+import React, { useState, ReactElement } from 'react';
 import Answers from './Answers';
 import QuestionTimer from './QuestionTimer';
 import { TIMEOUT_TIME } from '../common/constants';
@@ -59,11 +58,12 @@ export default function Question({
 
   // Determine if the answer is correct or not.
   let answerState = AnswerStateEnum.UNKNOWN;
+
   if (answer.selectedAnswer && answer.isCorrect !== undefined) {
     answerState = answer.isCorrect
       ? AnswerStateEnum.CORRECT
       : AnswerStateEnum.WRONG;
-  } else if (answer.selectedAnswer) {
+  } else if (answer.selectedAnswer !== '') {
     answerState = AnswerStateEnum.ANSWERED;
   }
 
@@ -72,9 +72,7 @@ export default function Question({
       <QuestionTimer
         key={questionTimer}
         timeout={questionTimer}
-        onTimeout={
-          answer.selectedAnswer === AnswerStateEnum.UNKNOWN ? onSkip : undefined
-        }
+        onTimeout={answerState === AnswerStateEnum.UNKNOWN ? onSkip : undefined}
         mode={answerState}
       />
       <h2>{QUESTIONS[questionIndex].text}</h2>

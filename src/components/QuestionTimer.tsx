@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import { ReactElement } from 'react';
+import React, { useEffect, useState, ReactElement } from 'react';
 
 interface Props {
   timeout: number;

@@ -1,8 +1,7 @@
-import React, { useCallback, useState } from 'react';
-import { ReactElement } from 'react';
+import React, { useCallback, useState, ReactElement } from 'react';
 import QUESTIONS from '../questions';
-import quizCompletePng from '../assets/quiz-complete.png';
 import Question from './Question';
+import Summary from './Summary';
 
 export default function Quiz(): ReactElement {
   const [userAnswers, setUserAnswers] = useState<any[]>([]);
@@ -22,12 +21,7 @@ export default function Quiz(): ReactElement {
   }, [handleSelectAnswer]);
 
   if (isQuizComplete) {
-    return (
-      <div id="summary">
-        <img src={quizCompletePng} alt="Quiz Complete Image" />
-        <h2>Quiz is Complete</h2>
-      </div>
-    );
+    return <Summary />;
   }
 
   return (

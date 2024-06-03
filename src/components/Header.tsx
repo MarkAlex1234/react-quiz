@@ -1,6 +1,5 @@
-import { ReactElement } from 'react';
+import React, { ReactElement } from 'react';
 import logoImg from '../assets/quiz-logo.png';
-import React from 'react';
 
 export default function Header(): ReactElement {
   return (
