@@ -21,7 +21,7 @@ export default function Quiz(): ReactElement {
   }, [handleSelectAnswer]);
 
   if (isQuizComplete) {
-    return <Summary />;
+    return <Summary usersAnswers={userAnswers} />;
   }
 
   return (
